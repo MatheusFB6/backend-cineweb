@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+  moduleFormat    = "cjs"
+
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id    Int     @default(autoincrement()) @id
+  email String  @unique
+  name  String?
+  posts Post[]
+}
+
+model Post {
+  id        Int      @default(autoincrement()) @id
+  title     String
+  content   String?
+  published Boolean? @default(false)
+  author    User?    @relation(fields: [authorId], references: [id])
+  authorId  Int?
+}
+
+model Filme {
+  id             Int       @id @default(autoincrement())
+  titulo         String
+  sinopse        String?
+  classificacao  String?
+  duracao        Int
+  genero         String?
+  datasExibicao  String?
+  sessoes        Sessao[]
+}
+
+model Sala {
+  id         Int       @id @default(autoincrement())
+  numero     Int
+  capacidade Int
+  sessoes    Sessao[]
+}
+
+model Sessao {
+  id        Int        @id @default(autoincrement())
+  dataHora  DateTime
+  filme     Filme      @relation(fields: [filmeId], references: [id])
+  filmeId   Int
+  sala      Sala       @relation(fields: [salaId], references: [id])
+  salaId    Int
+  ingressos Ingresso[]
+}
+
+model Lanche {
+  id            Int             @id @default(autoincrement())
+  nome          String
+  descricao     String?
+  valorUnitario Float
+  qtUnidade     Int
+  subtotal      Float           @default(0)
+  pedidos       PedidoLanche[]
+}
+
+model Pedido {
+  id          Int            @id @default(autoincrement())
+  qtInteira   Int            @default(0)
+  qtMeia      Int            @default(0)
+  valorTotal  Float
+  ingressos   Ingresso[]
+  lanches     PedidoLanche[]
+}
+
+model Ingresso {
+  id       Int     @id @default(autoincrement())
+  tipo     String  // "inteira" ou "meia"
+  valor    Float
+  sessao   Sessao  @relation(fields: [sessaoId], references: [id])
+  sessaoId Int
+  pedido   Pedido  @relation(fields: [pedidoId], references: [id])
+  pedidoId Int
+}
+
+model PedidoLanche {
+  id            Int    @id @default(autoincrement())
+  pedido        Pedido @relation(fields: [pedidoId], references: [id])
+  pedidoId      Int
+  lanche        Lanche @relation(fields: [lancheId], references: [id])
+  lancheId      Int
+  quantidade    Int
+  subtotal      Float
+}
