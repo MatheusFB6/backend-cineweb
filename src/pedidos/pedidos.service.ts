@@ -1,26 +1,85 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { Pedido } from '@prisma/client';
 
 @Injectable()
 export class PedidosService {
-  create(createPedidoDto: CreatePedidoDto) {
-    return 'This action adds a new pedido';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createPedidoDto: CreatePedidoDto): Promise<Pedido> {
+    return await this.prisma.pedido.create({
+      data: {
+        qtInteira: createPedidoDto.qtInteira,
+        qtMeia: createPedidoDto.qtMeia,
+        valorTotal: createPedidoDto.valorTotal,
+
+        ingressos: {
+          create:
+            createPedidoDto.ingressos?.map((ingresso) => ({
+              tipo: ingresso.tipo,
+              valor: ingresso.valor,
+              sessaoId: ingresso.sessaoId,
+            })) || [],
+        },
+
+        lanches: {
+          create:
+            createPedidoDto.lanches?.map((lanche) => ({
+              lancheId: lanche.id,
+              quantidade: lanche.qtUnidade,
+              subtotal: lanche.subtotal,
+            })) || [],
+        },
+      },
+      include: {
+        ingressos: true,
+        lanches: true,
+      },
+    });
   }
 
-  findAll() {
-    return `This action returns all pedidos`;
+  async findAll(): Promise<Pedido[]> {
+    return await this.prisma.pedido.findMany({
+      include: {
+        ingressos: true,
+        lanches: {
+          include: { lanche: true },
+        },
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} pedido`;
+  async findOne(id: number): Promise<Pedido | null> {
+    return await this.prisma.pedido.findUnique({
+      where: { id },
+      include: {
+        ingressos: true,
+        lanches: {
+          include: { lanche: true },
+        },
+      },
+    });
   }
 
-  update(id: number, updatePedidoDto: UpdatePedidoDto) {
-    return `This action updates a #${id} pedido`;
+  async update(id: number, updatePedidoDto: UpdatePedidoDto): Promise<Pedido> {
+    return await this.prisma.pedido.update({
+      where: { id },
+      data: {
+        qtInteira: updatePedidoDto.qtInteira,
+        qtMeia: updatePedidoDto.qtMeia,
+        valorTotal: updatePedidoDto.valorTotal,
+      },
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} pedido`;
+  async remove(id: number): Promise<Pedido> {
+    await this.prisma.ingresso.deleteMany({ where: { pedidoId: id } });
+    await this.prisma.pedidoLanche.deleteMany({ where: { pedidoId: id } });
+
+    return await this.prisma.pedido.delete({
+      where: { id },
+    });
   }
 }

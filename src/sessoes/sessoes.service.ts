@@ -1,26 +1,57 @@
 import { Injectable } from '@nestjs/common';
 import { CreateSessoeDto } from './dto/create-sessoe.dto';
 import { UpdateSessoeDto } from './dto/update-sessoe.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { Sessao } from '@prisma/client';
 
 @Injectable()
 export class SessoesService {
-  create(createSessoeDto: CreateSessoeDto) {
-    return 'This action adds a new sessoe';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createSessoeDto: CreateSessoeDto): Promise<Sessao> {
+    return await this.prisma.sessao.create({
+      data: {
+        dataHora: new Date(createSessoeDto.dataHora),
+        filmeId: createSessoeDto.filmeId,
+        salaId: createSessoeDto.salaId,
+      },
+    });
   }
 
-  findAll() {
-    return `This action returns all sessoes`;
+  async findAll(): Promise<Sessao[]> {
+    return await this.prisma.sessao.findMany({
+      include: {
+        filme: true,
+        sala: true,
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} sessoe`;
+  async findOne(id: number): Promise<Sessao | null> {
+    return await this.prisma.sessao.findUnique({
+      where: { id },
+      include: {
+        filme: true,
+        sala: true,
+      },
+    });
   }
 
-  update(id: number, updateSessoeDto: UpdateSessoeDto) {
-    return `This action updates a #${id} sessoe`;
+  async update(id: number, updateSessoeDto: UpdateSessoeDto): Promise<Sessao> {
+    const { dataHora, ...restoDosDados } = updateSessoeDto;
+
+    return await this.prisma.sessao.update({
+      where: { id },
+      data: {
+        ...restoDosDados,
+        ...(dataHora && { dataHora: new Date(dataHora) }),
+      },
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} sessoe`;
+  async remove(id: number): Promise<Sessao> {
+    return await this.prisma.sessao.delete({
+      where: { id },
+    });
   }
 }

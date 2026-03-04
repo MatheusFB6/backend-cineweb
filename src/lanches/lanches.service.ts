@@ -1,26 +1,39 @@
 import { Injectable } from '@nestjs/common';
 import { CreateLanchDto } from './dto/create-lanch.dto';
 import { UpdateLanchDto } from './dto/update-lanch.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { Lanche } from '@prisma/client';
 
 @Injectable()
 export class LanchesService {
-  create(createLanchDto: CreateLanchDto) {
-    return 'This action adds a new lanch';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createLanchDto: CreateLanchDto): Promise<Lanche> {
+    return await this.prisma.lanche.create({
+      data: createLanchDto,
+    });
   }
 
-  findAll() {
-    return `This action returns all lanches`;
+  async findAll(): Promise<Lanche[]> {
+    return await this.prisma.lanche.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} lanch`;
+  async findOne(id: number): Promise<Lanche | null> {
+    return await this.prisma.lanche.findUnique({
+      where: { id },
+    });
   }
 
-  update(id: number, updateLanchDto: UpdateLanchDto) {
-    return `This action updates a #${id} lanch`;
+  async update(id: number, updateLanchDto: UpdateLanchDto): Promise<Lanche> {
+    return await this.prisma.lanche.update({
+      where: { id },
+      data: updateLanchDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} lanch`;
+  async remove(id: number): Promise<Lanche> {
+    return await this.prisma.lanche.delete({
+      where: { id },
+    });
   }
 }

@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { LanchesService } from './lanches.service';
 import { CreateLanchDto } from './dto/create-lanch.dto';
 import { UpdateLanchDto } from './dto/update-lanch.dto';
@@ -22,7 +30,7 @@ export class LanchesController {
     return this.lanchesService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() updateLanchDto: UpdateLanchDto) {
     return this.lanchesService.update(+id, updateLanchDto);
   }
