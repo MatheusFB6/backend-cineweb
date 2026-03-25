@@ -1,6 +1,6 @@
 export class CreateIngressoDto {
-  tipo: string;
-  valor: number;
+  valorInteira: number;
+  valorMeia: number;
   sessaoId: number;
-  pedidoId: number;
+  pedidoId?: number;
 }

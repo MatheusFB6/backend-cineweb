@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateSalaDto } from './dto/create-sala.dto';
 import { UpdateSalaDto } from './dto/update-sala.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -35,5 +35,36 @@ export class SalasService {
     return await this.prisma.sala.delete({
       where: { id },
     });
+  }
+
+  async reservarPoltrona(id: number, fila: number, num: number): Promise<void> {
+    const sala = await this.prisma.sala.findUnique({ where: { id } });
+    if (!sala || !sala.poltronas)
+      throw new NotFoundException('Sala ou poltronas não encontradas');
+
+    const matrix = sala.poltronas as number[][];
+    if (matrix[fila] !== undefined && matrix[fila][num] !== undefined) {
+      matrix[fila][num] = 1; // 1 = reservado
+      await this.prisma.sala.update({
+        where: { id },
+        data: { poltronas: matrix },
+      });
+    } else {
+      throw new NotFoundException('Fila ou número da poltrona inválidos');
+    }
+  }
+
+  async calcularCapacidade(id: number): Promise<number> {
+    const sala = await this.prisma.sala.findUnique({ where: { id } });
+    if (!sala || !sala.poltronas) return 0;
+
+    const matrix = sala.poltronas as number[][];
+    let assentosLivres = 0;
+    for (const row of matrix) {
+      for (const seat of row) {
+        if (seat === 0) assentosLivres++; // 0 = livre
+      }
+    }
+    return assentosLivres;
   }
 }

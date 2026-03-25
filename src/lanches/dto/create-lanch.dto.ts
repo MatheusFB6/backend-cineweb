@@ -2,6 +2,7 @@ export class CreateLanchDto {
   nome: string;
   descricao?: string;
   valorUnitario: number;
-  qtUnidade: number;
+  quantidade: number;
   subtotal?: number;
+  pedidoId?: number;
 }

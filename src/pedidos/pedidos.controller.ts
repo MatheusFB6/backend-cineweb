@@ -39,4 +39,29 @@ export class PedidosController {
   remove(@Param('id') id: string) {
     return this.pedidosService.remove(+id);
   }
+
+  // --- MÉTODOS DO PRD ---
+
+  @Post(':id/lanches')
+  adicionaLanche(@Param('id') id: string, @Body() lancheData: any) {
+    return this.pedidosService.adicionaLanche(+id, lancheData);
+  }
+
+  @Delete(':id/lanches/:lancheId')
+  removerLanche(@Param('id') id: string, @Param('lancheId') lancheId: string) {
+    return this.pedidosService.removerLanche(+id, +lancheId);
+  }
+
+  @Post(':id/ingressos')
+  adicionarIngresso(@Param('id') id: string, @Body() ingressoData: any) {
+    return this.pedidosService.adicionarIngresso(+id, ingressoData);
+  }
+
+  @Delete(':id/ingressos/:ingressoId')
+  removerIngresso(
+    @Param('id') id: string,
+    @Param('ingressoId') ingressoId: string,
+  ) {
+    return this.pedidosService.removerIngresso(+id, +ingressoId);
+  }
 }

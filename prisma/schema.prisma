@@ -1,99 +1,152 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
-  moduleFormat    = "cjs"
-
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id    Int     @default(autoincrement()) @id
-  email String  @unique
-  name  String?
-  posts Post[]
+// ENTIDADES DE USUÁRIOS
+model Profile {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users User[]
 }
 
-model Post {
-  id        Int      @default(autoincrement()) @id
-  title     String
-  content   String?
-  published Boolean? @default(false)
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int?
+model User {
+  id       String @id @default(uuid())
+  email    String @unique
+  password String
+  name     String
+
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId String
+
+  address Address?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Address {
+  id      String @id @default(uuid())
+  street  String
+  number  Int
+  city    String
+  state   String
+  zipCode String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ENTIDADES DO CINEMA
+model Cinema {
+  id          Int      @id @default(autoincrement()) // Usando Int ao invés de BigInt por simplicidade e compatibilidade com APIs do Nest
+  nome        String
+  endereco    String
+  listaSalas  Sala[]
+  listaFilmes Filme[]
+  listaSessao Sessao[]
+}
+
+enum Genero {
+  ACAO
+  AVENTURA
+  COMEDIA
+  DRAMA
+  TERROR
+  FICCAO
+  ROMANCE
+  ANIMACAO
+  DOCUMENTARIO
+  OUTRO
 }
 
 model Filme {
-  id             Int       @id @default(autoincrement())
-  titulo         String
-  sinopse        String?
-  classificacao  String?
-  duracao        Int
-  genero         String?
-  datasExibicao  String?
-  sessoes        Sessao[]
+  id                 Int       @id @default(autoincrement())
+  titulo             String
+  sinopse            String?
+  classificacao      String?
+  duracao            DateTime // Date solicitado
+  elenco             String?
+  genero             Genero?
+  dataInicioExibicao DateTime? // Date solicitado
+  dataFinalExibicao  DateTime? // Date solicitado
+
+  sessoes Sessao[]
+
+  // Relacionamento com Cinema
+  cinema   Cinema @relation(fields: [cinemaId], references: [id])
+  cinemaId Int
 }
 
 model Sala {
-  id         Int       @id @default(autoincrement())
+  id         Int   @id @default(autoincrement())
   numero     Int
   capacidade Int
-  sessoes    Sessao[]
+  poltronas  Json? // Representa int[][]
+
+  sessoes Sessao[]
+
+  // Relacionamento com Cinema
+  cinema   Cinema @relation(fields: [cinemaId], references: [id])
+  cinemaId Int
 }
 
 model Sessao {
-  id        Int        @id @default(autoincrement())
-  dataHora  DateTime
-  filme     Filme      @relation(fields: [filmeId], references: [id])
-  filmeId   Int
-  sala      Sala       @relation(fields: [salaId], references: [id])
-  salaId    Int
+  id              Int      @id @default(autoincrement())
+  horarioExibicao DateTime
+
+  filme   Filme @relation(fields: [filmeId], references: [id])
+  filmeId Int
+
+  sala   Sala @relation(fields: [salaId], references: [id])
+  salaId Int
+
+  cinema   Cinema @relation(fields: [cinemaId], references: [id])
+  cinemaId Int
+
   ingressos Ingresso[]
 }
 
-model Lanche {
-  id            Int             @id @default(autoincrement())
+// VENDAS E CARRINHO
+model Ingresso {
+  id           Int   @id @default(autoincrement())
+  valorInteira Float
+  valorMeia    Float
+
+  sessao   Sessao @relation(fields: [sessaoId], references: [id])
+  sessaoId Int
+
+  pedido   Pedido? @relation(fields: [pedidoId], references: [id])
+  pedidoId Int?
+}
+
+model LancheCombo {
+  id            Int     @id @default(autoincrement())
   nome          String
   descricao     String?
   valorUnitario Float
-  qtUnidade     Int
-  subtotal      Float           @default(0)
-  pedidos       PedidoLanche[]
+  quantidade    Int
+  subtotal      Float
+
+  pedido   Pedido? @relation(fields: [pedidoId], references: [id])
+  pedidoId Int?
 }
 
 model Pedido {
-  id          Int            @id @default(autoincrement())
-  qtInteira   Int            @default(0)
-  qtMeia      Int            @default(0)
-  valorTotal  Float
-  ingressos   Ingresso[]
-  lanches     PedidoLanche[]
-}
+  id         Int   @id @default(autoincrement())
+  qtInteira  Int   @default(0)
+  qtMeia     Int   @default(0)
+  valorTotal Float
 
-model Ingresso {
-  id       Int     @id @default(autoincrement())
-  tipo     String  
-  valor    Float
-  sessao   Sessao  @relation(fields: [sessaoId], references: [id])
-  sessaoId Int
-  pedido   Pedido  @relation(fields: [pedidoId], references: [id])
-  pedidoId Int
-}
-
-model PedidoLanche {
-  id            Int    @id @default(autoincrement())
-  pedido        Pedido @relation(fields: [pedidoId], references: [id])
-  pedidoId      Int
-  lanche        Lanche @relation(fields: [lancheId], references: [id])
-  lancheId      Int
-  quantidade    Int
-  subtotal      Float
+  ingresso Ingresso[]
+  lanche   LancheCombo[]
 }

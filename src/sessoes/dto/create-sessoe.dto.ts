@@ -1,5 +1,6 @@
 export class CreateSessoeDto {
-  dataHora: string | Date; // O Frontend geralmente envia como string ISO
+  horarioExibicao: string | Date;
   filmeId: number;
   salaId: number;
+  cinemaId: number;
 }

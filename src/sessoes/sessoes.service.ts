@@ -11,9 +11,10 @@ export class SessoesService {
   async create(createSessoeDto: CreateSessoeDto): Promise<Sessao> {
     return await this.prisma.sessao.create({
       data: {
-        dataHora: new Date(createSessoeDto.dataHora),
+        horarioExibicao: new Date(createSessoeDto.horarioExibicao),
         filmeId: createSessoeDto.filmeId,
         salaId: createSessoeDto.salaId,
+        cinemaId: createSessoeDto.cinemaId,
       },
     });
   }
@@ -38,13 +39,13 @@ export class SessoesService {
   }
 
   async update(id: number, updateSessoeDto: UpdateSessoeDto): Promise<Sessao> {
-    const { dataHora, ...restoDosDados } = updateSessoeDto;
+    const { horarioExibicao, ...restoDosDados } = updateSessoeDto;
 
     return await this.prisma.sessao.update({
       where: { id },
       data: {
         ...restoDosDados,
-        ...(dataHora && { dataHora: new Date(dataHora) }),
+        ...(horarioExibicao && { horarioExibicao: new Date(horarioExibicao) }),
       },
     });
   }

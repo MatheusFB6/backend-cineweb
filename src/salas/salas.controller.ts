@@ -39,4 +39,18 @@ export class SalasController {
   remove(@Param('id') id: string) {
     return this.salasService.remove(+id);
   }
+
+  @Post(':id/reservar')
+  reservarPoltrona(
+    @Param('id') id: string,
+    @Body('fila') fila: number,
+    @Body('num') num: number,
+  ) {
+    return this.salasService.reservarPoltrona(+id, fila, num);
+  }
+
+  @Get(':id/capacidade')
+  calcularCapacidade(@Param('id') id: string) {
+    return this.salasService.calcularCapacidade(+id);
+  }
 }

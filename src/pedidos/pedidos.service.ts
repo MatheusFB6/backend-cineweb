@@ -14,28 +14,6 @@ export class PedidosService {
         qtInteira: createPedidoDto.qtInteira,
         qtMeia: createPedidoDto.qtMeia,
         valorTotal: createPedidoDto.valorTotal,
-
-        ingressos: {
-          create:
-            createPedidoDto.ingressos?.map((ingresso) => ({
-              tipo: ingresso.tipo,
-              valor: ingresso.valor,
-              sessaoId: ingresso.sessaoId,
-            })) || [],
-        },
-
-        lanches: {
-          create:
-            createPedidoDto.lanches?.map((lanche) => ({
-              lancheId: lanche.id,
-              quantidade: lanche.qtUnidade,
-              subtotal: lanche.subtotal,
-            })) || [],
-        },
-      },
-      include: {
-        ingressos: true,
-        lanches: true,
       },
     });
   }
@@ -43,10 +21,8 @@ export class PedidosService {
   async findAll(): Promise<Pedido[]> {
     return await this.prisma.pedido.findMany({
       include: {
-        ingressos: true,
-        lanches: {
-          include: { lanche: true },
-        },
+        ingresso: true,
+        lanche: true,
       },
     });
   }
@@ -55,10 +31,8 @@ export class PedidosService {
     return await this.prisma.pedido.findUnique({
       where: { id },
       include: {
-        ingressos: true,
-        lanches: {
-          include: { lanche: true },
-        },
+        ingresso: true,
+        lanche: true,
       },
     });
   }
@@ -76,10 +50,46 @@ export class PedidosService {
 
   async remove(id: number): Promise<Pedido> {
     await this.prisma.ingresso.deleteMany({ where: { pedidoId: id } });
-    await this.prisma.pedidoLanche.deleteMany({ where: { pedidoId: id } });
+    await this.prisma.lancheCombo.deleteMany({ where: { pedidoId: id } });
 
     return await this.prisma.pedido.delete({
       where: { id },
     });
+  }
+
+  // --- MÉTODOS SOLICITADOS NO PRD ---
+
+  async adicionaLanche(pedidoId: number, lancheData: any) {
+    return this.prisma.lancheCombo.create({
+      data: {
+        ...lancheData,
+        pedidoId,
+      },
+    });
+  }
+
+  async removerLanche(pedidoId: number, lancheId: number) {
+    const lanche = await this.prisma.lancheCombo.findFirst({
+      where: { id: lancheId, pedidoId },
+    });
+    if (!lanche) throw new Error('Lanche não pertence a este pedido');
+    return this.prisma.lancheCombo.delete({ where: { id: lancheId } });
+  }
+
+  async adicionarIngresso(pedidoId: number, ingressoData: any) {
+    return this.prisma.ingresso.create({
+      data: {
+        ...ingressoData,
+        pedidoId,
+      },
+    });
+  }
+
+  async removerIngresso(pedidoId: number, ingressoId: number) {
+    const ingresso = await this.prisma.ingresso.findFirst({
+      where: { id: ingressoId, pedidoId },
+    });
+    if (!ingresso) throw new Error('Ingresso não pertence a este pedido');
+    return this.prisma.ingresso.delete({ where: { id: ingressoId } });
   }
 }
