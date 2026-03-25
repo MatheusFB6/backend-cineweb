@@ -80,7 +80,7 @@ model Pedido {
 
 model Ingresso {
   id       Int     @id @default(autoincrement())
-  tipo     String  // "inteira" ou "meia"
+  tipo     String  
   valor    Float
   sessao   Sessao  @relation(fields: [sessaoId], references: [id])
   sessaoId Int
