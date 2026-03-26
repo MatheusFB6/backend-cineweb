@@ -16,7 +16,6 @@ export class LanchesService {
         valorUnitario: createLanchDto.valorUnitario,
         quantidade: createLanchDto.quantidade,
         subtotal: createLanchDto.subtotal ?? 0,
-        pedidoId: createLanchDto.pedidoId,
       },
     });
   }

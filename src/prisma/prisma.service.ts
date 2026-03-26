@@ -11,9 +11,11 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       connectionString: process.env.DATABASE_URL,
     });
 
-    const adapter = new PrismaPg(pool, {
-      schema: 'dev-cinema',
-    });
+    const dbUrl = process.env.DATABASE_URL ?? '';
+    const schemaMatch = dbUrl.match(/[?&]schema=([^&]+)/);
+    const schema = schemaMatch ? schemaMatch[1] : 'public';
+
+    const adapter = new PrismaPg(pool, { schema });
 
     super({ adapter });
   }

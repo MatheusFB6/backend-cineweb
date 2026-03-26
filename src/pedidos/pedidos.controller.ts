@@ -25,6 +25,12 @@ export class PedidosController {
     return this.pedidosService.findAll();
   }
 
+  // Rota para listar pedidos de um usuário específico (Meus Pedidos)
+  @Get('user/:userId')
+  findByUser(@Param('userId') userId: string) {
+    return this.pedidosService.findByUser(userId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.pedidosService.findOne(+id);
@@ -38,30 +44,5 @@ export class PedidosController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.pedidosService.remove(+id);
-  }
-
-  // --- MÉTODOS DO PRD ---
-
-  @Post(':id/lanches')
-  adicionaLanche(@Param('id') id: string, @Body() lancheData: any) {
-    return this.pedidosService.adicionaLanche(+id, lancheData);
-  }
-
-  @Delete(':id/lanches/:lancheId')
-  removerLanche(@Param('id') id: string, @Param('lancheId') lancheId: string) {
-    return this.pedidosService.removerLanche(+id, +lancheId);
-  }
-
-  @Post(':id/ingressos')
-  adicionarIngresso(@Param('id') id: string, @Body() ingressoData: any) {
-    return this.pedidosService.adicionarIngresso(+id, ingressoData);
-  }
-
-  @Delete(':id/ingressos/:ingressoId')
-  removerIngresso(
-    @Param('id') id: string,
-    @Param('ingressoId') ingressoId: string,
-  ) {
-    return this.pedidosService.removerIngresso(+id, +ingressoId);
   }
 }

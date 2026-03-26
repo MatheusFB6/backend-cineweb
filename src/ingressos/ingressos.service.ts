@@ -18,19 +18,19 @@ export class IngressosService {
     if (sessaoId) {
       return await this.prisma.ingresso.findMany({
         where: { sessaoId },
-        include: { sessao: true, pedido: true },
+        include: { sessao: true },
       });
     }
 
     return await this.prisma.ingresso.findMany({
-      include: { sessao: true, pedido: true },
+      include: { sessao: true },
     });
   }
 
   async findOne(id: number): Promise<Ingresso | null> {
     return await this.prisma.ingresso.findUnique({
       where: { id },
-      include: { sessao: true, pedido: true },
+      include: { sessao: true },
     });
   }
 
