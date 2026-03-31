@@ -26,7 +26,7 @@ model User {
   profileId String
 
   address Address?
-  pedidos  Pedido[]
+  pedidos Pedido[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -49,8 +49,7 @@ model Address {
 
 // ENTIDADES DO CINEMA
 model Cinema {
-  id          Int      @id @default(autoincrement()) // Usando Int ao invés de BigInt por simplicidade e compatibilidade com APIs do Nest
-  nome        String
+  id          Int      @id @default(autoincrement())
   endereco    String
   listaSalas  Sala[]
   listaFilmes Filme[]
@@ -75,15 +74,13 @@ model Filme {
   titulo             String
   sinopse            String?
   classificacao      String?
-  duracao            DateTime // Date solicitado
+  duracao            DateTime
   elenco             String?
   genero             Genero?
-  dataInicioExibicao DateTime? // Date solicitado
-  dataFinalExibicao  DateTime? // Date solicitado
+  dataInicioExibicao DateTime?
+  dataFinalExibicao  DateTime?
+  sessoes            Sessao[]
 
-  sessoes Sessao[]
-
-  // Relacionamento com Cinema
   cinema   Cinema @relation(fields: [cinemaId], references: [id])
   cinemaId Int
 }
