@@ -14,7 +14,6 @@ export class AuthService {
   ) {}
 
   async login(loginDto: LoginDto) {
-    // 1. Busca o usuário pelo email
     const user = await this.prisma.user.findUnique({
       where: { email: loginDto.email },
     });
@@ -23,7 +22,6 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    // 2. Compara a senha digitada com a criptografada no banco
     const isPasswordValid = await bcrypt.compare(
       loginDto.password,
       user.password,
@@ -33,10 +31,8 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    // 3. Gera o Payload (dados que vão dentro do token)
     const payload = { email: user.email, sub: user.id };
 
-    // 4. Retorna o Token de acesso
     return {
       access_token: this.jwtService.sign(payload),
     };

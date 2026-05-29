@@ -8,7 +8,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      // O ideal é colocar isso no seu arquivo .env como JWT_SECRET="sua_chave"
       secretOrKey: process.env.JWT_SECRET || 'chave_secreta_cinema_123',
     });
   }
